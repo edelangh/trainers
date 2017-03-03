@@ -1,6 +1,18 @@
 
+NAME = trainer
+MAKE_FLAGS = -j4
+
+BUILD=build
+
+CFLAGS= -lSDL2
+SRCS = core/main.cpp \
+	   core/SdlWindow.cpp
+
 
 all: $(NAME)
 
-$(NAME): 
-	g++ main.cpp -I libs/SFGUI/include -L libs/SFGUI/lib -lsfgui 
+$(BUILD):
+	mkdir $(BUILD)
+
+$(NAME): $(BUILD)
+	g++ -o $(BUILD)/$@ $(SRCS) $(CFLAGS) -Wl,-rpath,.
