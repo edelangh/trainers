@@ -4,6 +4,15 @@ var sequelize = new Sequelize('database', 'username', 'password', {
   storage: 'db.sqlite',
 });
 
+var Profile = sequelize.define('Profile', {
+  id: {
+    type: Sequelize.INTEGER,
+    autoIncrement: true,
+    primaryKey: true
+  },
+  username: Sequelize.STRING,
+});
+
 var TestType = sequelize.define('TestType', {
   id: {
     type: Sequelize.INTEGER,
@@ -24,24 +33,41 @@ var Test = sequelize.define('Test', {
   answer: Sequelize.STRING,
   hardness: Sequelize.INTEGER
 });
+Test.belongsTo(TestType, {foreignKey: {name: 'TestTypeId', allowNull: false}})
 
-Test.hasOne(TestType, {foreignKey: 'TestTypeId'})
+var Answer = sequelize.define('Answer', {
+  id: {
+    type: Sequelize.INTEGER,
+    autoIncrement: true,
+    primaryKey: true
+  },
+  // ProfileId
+  // TestId
+  answer: Sequelize.STRING,
+  result: Sequelize.BOOLEAN,
+});
+Answer.belongsTo(Profile, {foreignKey: 'ProfileId'});
+Answer.belongsTo(Test, {foreignKey: 'TestId'});
 
 sequelize.sync().then(function() {
+  return TestType.create({
+    name: 'strict'
+  }).then(function (testType) {
+
   return Test.create({
     query: 'test ?',
     answer: 'ok !',
-    hardness: '90'
+    hardness: '90',
+    TestTypeId: testType.id
   });
 }).then(function(test) {
   console.log(test.get({
     plain: true
   }));
 });
+});
 
 /*
-
-
 var express    = require('express')
 var bodyParser = require('body-parser')
 
@@ -67,7 +93,7 @@ var logSchema = new mongoose.Schema({
 
 var Log = mongoose.model('Log', logSchema);
 
-// Si on a utilisÃÂÃÂ© mongoose.connect()
+// Si on a utilisÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ© mongoose.connect()
 // mongoose.connection.close();
 
 app.use(bodyParser.json({limit: '20mb'}));
