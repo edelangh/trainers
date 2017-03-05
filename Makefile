@@ -4,13 +4,14 @@ MAKE_FLAGS = -j4
 
 BUILD=build
 
-CFLAGS= -lSDL2
+CFLAGS= -lSDL2 -lcurl
 FLAGS = -std=c++14
 
 SRCDIR = core
 SRCS = main.cpp \
 	   Parser.cpp \
 	   CliInterface.cpp \
+	   Test.cpp \
 	   Trainer.cpp \
 	   Args.cpp \
 	   SdlWindow.cpp \

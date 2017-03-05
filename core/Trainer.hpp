@@ -3,6 +3,7 @@
 
 #include "Args.hpp"
 #include "IInterface.hpp"
+#include "Test.hpp"
 
 class Trainer
 {
@@ -11,6 +12,11 @@ class Trainer
         ~Trainer();
 
         int     run(void);
+
+        int     getNextTestId();
+        Test    *getTest(int id);
+
+        void    test(Test *t);
 
         Args        _a;
         IInterface  *_i;
