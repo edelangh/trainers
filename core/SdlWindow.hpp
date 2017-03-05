@@ -10,8 +10,8 @@ class SdlWindow
         ~SdlWindow();
 
     private:
-    	//The window we'll be rendering to
-	    SDL_Window*  _window;
-	    //The surface contained by the window
-	    SDL_Surface* _screenSurface;
+        //The window we'll be rendering to
+        SDL_Window*  _window;
+        //The surface contained by the window
+        SDL_Surface* _screenSurface;
 };
