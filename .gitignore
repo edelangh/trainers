@@ -30,4 +30,4 @@
 
 node_modules
 db.sqlite
-*.bak #Gen by workbench
+workbench.mwb.bak
