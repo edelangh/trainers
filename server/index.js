@@ -50,6 +50,7 @@ Answer.belongsTo(Profile, {foreignKey: 'ProfileId'});
 Answer.belongsTo(Test, {foreignKey: 'TestId'});
 
 sequelize.sync().then(function() {
+/*
   return TestType.create({
     name: 'strict'
   }).then(function (testType) {
@@ -65,51 +66,88 @@ sequelize.sync().then(function() {
     plain: true
   }));
 });
+*/
 });
 
-/*
 var express    = require('express')
 var bodyParser = require('body-parser')
 
 var app  = express()
 var port = process.env.PORT || 8000
 
-var mongoose = require('mongoose');
-var Schema = require('mongoose').Schema;
-
-mongoose.connect('mongodb://localhost/bbfs', function(err) {
-  if (err) { throw err; }
-});
-
-var logSchema = new mongoose.Schema({
-  id: Schema.ObjectId,
-  path: String,
-  inode: Number,
-  user_name: String,
-  mac: String,
-  action: String,
-  timestamp: { type : Date, default : Date.now }
-});
-
-var Log = mongoose.model('Log', logSchema);
-
-// Si on a utilisÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ© mongoose.connect()
 // mongoose.connection.close();
 
-app.use(bodyParser.json({limit: '20mb'}));
+app.use(bodyParser.json({limit: '1mb'}));
 
-app.put('/data', function (req, res) {
-  const logs = req.body.logs
 
-  console.log('data:', logs)
-  logs.map((log) => {
-    new Log(log).save()
-  });
-  res.end()
-})
+var testR = express.Router();
+
+testR.get('/:id', function (req, res) {
+    Test.findOne({where: {id: req.params.id}})
+    .then(function (tests) {
+        res.json(tests);
+    })
+    .catch(function (err) {
+        console.error(err);
+        res.status(400);
+        res.error(err);
+    });
+});
+
+testR.get('/', function (req, res) {
+    Test.findAll()
+    .then(function (tests) {
+        res.json(tests);
+    })
+    .catch(function (err) {
+        console.error(err);
+        res.status(400);
+        res.error(err);
+    });
+});
+
+app.use('/test', testR);
+
+var apiR = express.Router();
+
+apiR.use(bodyParser.json());
+apiR.post('/answerTest', function (req, res) {
+    const id = req.body.test_id;
+    const answer = req.body.test_answer;
+    Test.findOne({where: {id: id}})
+    .then(function (test) {
+        if (!test) return res.status(400).json({result: false, error: "cannot find test"});
+        const check = test.answer === answer;
+        console.log("your answer: '" + answer + "'");
+        console.log("true answer: '" + test.answer + "'");
+        if (check) console.log("Ok");
+        else console.log("Nop");
+
+        res.json({result: check});
+    })
+    .catch(function (err) {
+        console.error(err);
+        res.status(400);
+        res.error(err);
+    });
+});
+
+apiR.get('/randomTest', function (req, res) {
+    Test.count().then(function (count) {
+        Test.findOne({where: {id: (Math.random()*count + 1)|0}})
+        .then(function (tests) {
+            res.json(tests);
+        })
+        .catch(function (err) {
+            console.error(err);
+            res.status(400);
+            res.error(err);
+        });
+    });
+});
+
+app.use('/api', apiR);
 
 app.listen(port, function () {
   console.log('server listening on port:', port)
 })
-
-*/
