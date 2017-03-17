@@ -9,35 +9,59 @@
      var props = remote.getGlobal('sharedObj').props;
      var ipcRenderer = require('electron').ipcRenderer;
 
-     var hasAnswer = false;
+//     var hasAnswer = false;
      console.log(remote.getGlobal('sharedObj').props);
+
 
      function submit(e) {
          e.preventDefault();
-         if (hasAnswer) return ;
+//         if (hasAnswer) return ;
          var input = document.getElementById("answer");
          var value = input.value;
 
          console.log("submit");
          ipcRenderer.send("submit", {value: value});
-         hasAnswer = true;
-     }
+ //        hasAnswer = true;
+    }
+    var eventList = [submit];
+    function nextEvent(e) {
+        console.log("test");
+        eventList.pop()(e);
+    }
+    function new_test(e) {
+        alert("lol");
+    }
+    function transition_message(msg) {
+        var text = document.getElementById("transition_message");
+        var content = document.getElementById("content");
+        var container = document.getElementById("transition_container");
+        text.innerText = msg;
+        content.classList.add("hidden");
+        container.classList.remove("hidden");
+        eventList = [new_test].concat(eventList);
+        console.log(eventList);
+    }
+    ipcRenderer.on('reply', (event, arg) => {
+      transition_message(arg.result ? "Success" : "Nop");
+    })
     function init() {
-      document.getElementById("answer")
+      document.getElementById("body")
       .addEventListener("keyup", function(e) {
         e.preventDefault();
-          if (event.keyCode == 13) {submit(e);
-        }
+          if (event.keyCode == 13) {nextEvent(e);}
       });
     }
   </script>
   </head>
-  <body onload="init()">
-    <div class="background-image"></div>
-    <div class="content">
+  <body onload="init()" id="body">
+    <div id="background-image"></div>
+    <div id="transition_container" class="modal hidden">
+        <div id="transition_message" class="modal-content">Cc</div>
+    </div>
+    <div id="content">
         <h1 id="title">Histoire</h1>
         <div id="modal-content">
-            <div id="question"><script>document.write(props.question)</script></div>
+            <div id="question"><script>document.write(props.test.query)</script></div>
             <hr />
             <input type="text" id="answer" onkeydown=""autofocus></input>
         </div>

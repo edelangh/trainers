@@ -1,7 +1,7 @@
 const {app, BrowserWindow} = require('electron')
 const path = require('path')
 const url = require('url')
-
+const request = require('request')
 
 var ipcMain = require('electron').ipcMain;
 
@@ -11,17 +11,27 @@ var ipcMain = require('electron').ipcMain;
 let win
 
 
-global.sharedObj = {props: {question: "25 decembre 498 ?"}};
+const API_URL = "http://localhost:8000"
+global.sharedObj = {props: {
+    test: undefined,
+}};
 
-ipcMain.on('submit', function(event, value) {
-  console.log(value);
-
+ipcMain.on('submit', function(event, params) {
+    console.log(params);
+    request({method: 'POST', body: {
+        test_id: global.sharedObj.props.test.id,
+        test_answer: params.value,
+        }, json: true, url: API_URL+'/api/answerTest'}, function (err, res, body) {
+            console.log(body);
+            event.sender.send('reply', body);
+        });
 });
 
 function createWindow () {
   // Create the browser window.
   win = new BrowserWindow({width: 800, height: 600})
 
+console.log(global.sharedObj.props);
   // and load the index.html of the app.
   win.loadURL(url.format({
     pathname: path.join(__dirname, 'index.html'),
@@ -44,7 +54,7 @@ function createWindow () {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow)
+app.on('ready', launchTest)
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
@@ -55,11 +65,18 @@ app.on('window-all-closed', () => {
   }
 })
 
+function launchTest() {
+    request({url: API_URL+'/api/randomTest'}, function (err, res, body) {
+      global.sharedObj.props.test = JSON.parse(body);
+      createWindow()
+    });
+}
+
 app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (win === null) {
-    createWindow()
+    launchTest();
   }
 })
 
